@@ -19,8 +19,8 @@ public class UserController {
     @GetMapping()
     public String index(Principal user, ModelMap model)
     {
-        model.addAttribute("user", userService.findUserByUserName(user.getName()));
-        return "user";
+        model.addAttribute("user", userService.findUserByEmail(user.getName()));
+        return "user-page";
     }
 
 }

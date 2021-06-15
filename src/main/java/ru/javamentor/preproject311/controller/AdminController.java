@@ -1,6 +1,7 @@
 package ru.javamentor.preproject311.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
@@ -8,6 +9,9 @@ import ru.javamentor.preproject311.converters.StringArrayToRoleConverter;
 import ru.javamentor.preproject311.model.User;
 import ru.javamentor.preproject311.service.RoleService;
 import ru.javamentor.preproject311.service.UserService;
+
+import java.security.Principal;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/admin")
@@ -21,22 +25,12 @@ public class AdminController {
     private StringArrayToRoleConverter roleConverter;
 
     @GetMapping()
-    public String index(ModelMap model) {
+    public String index(ModelMap model, Principal user) {
         model.addAttribute("users", userService.findAll());
-        return "users";
-    }
-
-    @GetMapping("/{id}")
-    public String show(@PathVariable("id") long id, ModelMap model) {
-        model.addAttribute("user", userService.findById(id));
-        return "userId";
-    }
-
-    @GetMapping("/new")
-    public String newUser(ModelMap model) {
-        model.addAttribute("user", new User());
+        model.addAttribute("user", userService.findUserByEmail(user.getName()));
         model.addAttribute("allRoles", roleService.findAll());
-        return "new";
+        model.addAttribute("newUser", new User());
+        return "admin-page";
     }
 
     @PostMapping()
@@ -50,19 +44,19 @@ public class AdminController {
     public String edit(@PathVariable("id") long id, ModelMap model) {
         model.addAttribute("user", userService.findById(id));
         model.addAttribute("allRoles", roleService.findAll());
-        return "edit";
+        return "form";
     }
 
-    @PatchMapping("/{id}")
+    @PatchMapping()
     public String update(@ModelAttribute("user") User user, @RequestParam(value = "roless", required = false) String[] roles) {
         user.setRoles(roleConverter.convert(roles));
         userService.saveUser(user);
         return "redirect:/admin";
     }
 
-    @DeleteMapping("/{id}")
-    public String delete(@PathVariable("id") long id) {
-        userService.deleteUser(id);
+    @DeleteMapping()
+    public String delete(@ModelAttribute("user") User user) {
+        userService.deleteUser(user.getId());
         return "redirect:/admin";
     }
 }

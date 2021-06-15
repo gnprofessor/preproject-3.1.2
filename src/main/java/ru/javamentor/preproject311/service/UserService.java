@@ -6,7 +6,7 @@ import ru.javamentor.preproject311.model.User;
 import java.util.List;
 
 public interface UserService extends UserDetailsService {
-    User findUserByUserName(String name);
+    User findUserByEmail(String email);
     List<User> findAll();
     User findById(long id);
     void saveUser(User user);

@@ -6,6 +6,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import javax.persistence.*;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 @Entity
@@ -16,18 +17,20 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(name = "name", unique = true)
+    @Column(name = "first_name")
     private String name;
-
-    @Column(name = "password")
-    private String password;
-
 
     @Column(name = "last_name")
     private String lastName;
 
-    @Column(name = "email")
+    @Column(name = "age")
+    private int age;
+
+    @Column(name = "email", unique = true)
     private String email;
+
+    @Column(name = "password")
+    private String password;
 
     //@ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @ManyToMany(fetch = FetchType.EAGER)
@@ -39,10 +42,11 @@ public class User implements UserDetails {
     public User() {
     }
 
-    public User(String lastName, String email, String name, String password, Set<Role> roles) {
-        this.lastName = lastName;
-        this.email = email;
+    public User(String name, String lastName, int age, String email, String password, Set<Role> roles) {
         this.name = name;
+        this.lastName = lastName;
+        this.age = age;
+        this.email = email;
         this.password = password;
         this.roles = roles;
     }
@@ -96,6 +100,11 @@ public class User implements UserDetails {
         return roles;
     }
 
+    public boolean whichRole(long id) {
+        Optional<Role> roleOptional = getRoles().stream().filter(role -> id == role.getId()).findFirst();
+        return roleOptional.isPresent();
+    }
+
     @Override
     public String getPassword() {
         return password;
@@ -126,4 +135,11 @@ public class User implements UserDetails {
         return true;
     }
 
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
 }
